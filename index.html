@@ -22,42 +22,45 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; /* Выравнивание от верхнего края */
             align-items: center;
             overflow: hidden;
             position: relative;
+            padding-top: 40px; /* Отступ сверху для надписи */
         }
 
         /* Общий контейнер для заднего фона */
         .background-gifs {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Центрирование блока по экрану */
             width: 100%;
             height: 100%;
+            max-width: 1200px;
             z-index: 1; /* Самый нижний слой, под текстом и цветком */
             display: none; /* Скрыты до клика */
             pointer-events: none; /* Чтобы не мешали кликать по экрану */
         }
 
-        /* Стиль для фоновых гифок */
+        /* Стиль для фоновых гифок — сделаны БОЛЬШЕ цветка */
         .bg-gif {
             position: absolute;
-            width: 250px; /* Размер гифок (можно увеличить или уменьшить) */
+            width: 750px; /* Большой размер для фона */
             height: auto;
-            opacity: 0.7; /* Легкая прозрачность, чтобы ничего не затмевать */
+            opacity: 0.6; /* Легкая прозрачность */
+            top: 50%;
+            transform: translateY(-50%);
         }
 
-        /* Первая гифка — слева */
+        /* Первая гифка — по центру, со смещением влево */
         .bg-gif.left {
-            top: 20%;
-            left: 8%;
+            left: -15%;
         }
 
-        /* Вторая гифка — справа */
+        /* Вторая гифка — по центру, со смещением вправо */
         .bg-gif.right {
-            bottom: 30%;
-            right: 8%;
+            right: -15%;
         }
 
         /* Главный контент по центру экрана */
@@ -69,29 +72,29 @@
             align-items: center;
             text-align: center;
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
             padding: 20px;
         }
 
         /* Темно-розовая надпись */
         .instruction-text {
             color: #c2185b; 
-            font-size: 38px;
-            margin-bottom: 20px;
+            font-size: 42px;
+            margin-bottom: 40px;
             font-weight: bold;
         }
 
-        /* Надпись "не грустииии" над цветком */
+        /* Надпись "не грустииии" — ПРЯМ ПОВЫШЕ у начала сайта */
         .flower-text {
             color: #000000;
-            font-size: 45px;
-            margin-bottom: 20px;
+            font-size: 55px; /* Чуть увеличили размер шрифта для красоты */
+            margin-bottom: 30px;
             display: none;
         }
 
-        /* Главная картинка (письмо / цветок) */
+        /* Главная картинка (письмо / цветок) — В ДВА РАЗА БОЛЬШЕ */
         .main-gif {
-            max-width: 300px;
+            max-width: 600px; /* Увеличено с 300px до 600px */
             width: 100%;
             height: auto;
             cursor: pointer;
@@ -99,7 +102,7 @@
         }
 
         .main-gif:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
         /* Нижняя панель */
@@ -110,7 +113,7 @@
             width: 100%;
             border-top: 2px solid rgba(0, 0, 0, 0.15);
             background-color: rgba(252, 228, 236, 0.95);
-            padding: 30px 20px 50px 20px;
+            padding: 25px 20px 45px 20px;
             display: none; 
             z-index: 20; /* Поверх всего */
             flex-direction: column;
@@ -124,7 +127,7 @@
             text-align: center;
             max-width: 85%;
             line-height: 1.3;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             min-height: 80px;
         }
 
@@ -154,19 +157,19 @@
         .timer-text {
             font-size: 20px;
             color: rgba(0, 0, 0, 0.6);
-            margin-top: 15px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <!-- ДВЕ ФОНОВЫЕ ГИФКИ (появляются через секунду после клика на письмо) -->
+    <!-- ДВЕ БОЛЬШИЕ ФОНОВЫЕ ГИФКИ ПО ЦЕНТРУ НА ЗАДНЕМ ПЛАНЕ -->
     <div class="background-gifs" id="bgGifs">
         <img src="bg-left.gif" alt="Левый фон" class="bg-gif left">
         <img src="bg-right.gif" alt="Правый фон" class="bg-gif right">
     </div>
 
-    <!-- Центр экрана -->
+    <!-- Основной блок сайта -->
     <div class="content-wrapper">
         <div class="instruction-text" id="instruction">нажми на письмо</div>
         <div class="flower-text" id="flowerText">не грустииии</div>
@@ -223,7 +226,7 @@
             }
         }
 
-        // Логика клика по письму
+        // Логика клика
         mainImage.addEventListener('click', function() {
             if (mainImage.src.includes('letter.gif')) {
                 
@@ -233,7 +236,7 @@
                 bottomPanel.style.display = 'flex';
                 updatePanel();
 
-                // Через 1 секунду плавно (или сразу) показываем две фоновые гифки сзади
+                // Через 1 секунду плавно показываем две огромные фоновые гифки сзади
                 setTimeout(() => {
                     bgGifs.style.display = 'block';
                 }, 1000);
@@ -256,3 +259,4 @@
     </script>
 </body>
 </html>
+
