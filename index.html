@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для тебя</title>
+    <!-- Подключаем милый рукописный шрифт -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fce4ec; /* Нежный розовый фон */
+            font-family: 'Caveat', cursive;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Общий контейнер для заднего фона */
+        .background-gifs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Самый нижний слой, под текстом и цветком */
+            display: none; /* Скрыты до клика */
+            pointer-events: none; /* Чтобы не мешали кликать по экрану */
+        }
+
+        /* Стиль для фоновых гифок */
+        .bg-gif {
+            position: absolute;
+            width: 250px; /* Размер гифок (можно увеличить или уменьшить) */
+            height: auto;
+            opacity: 0.7; /* Легкая прозрачность, чтобы ничего не затмевать */
+        }
+
+        /* Первая гифка — слева */
+        .bg-gif.left {
+            top: 20%;
+            left: 8%;
+        }
+
+        /* Вторая гифка — справа */
+        .bg-gif.right {
+            bottom: 30%;
+            right: 8%;
+        }
+
+        /* Главный контент по центру экрана */
+        .content-wrapper {
+            position: relative;
+            z-index: 10; /* Поверх фоновых гифок */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        /* Темно-розовая надпись */
+        .instruction-text {
+            color: #c2185b; 
+            font-size: 38px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Надпись "не грустииии" над цветком */
+        .flower-text {
+            color: #000000;
+            font-size: 45px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Главная картинка (письмо / цветок) */
+        .main-gif {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .main-gif:hover {
+            transform: scale(1.05);
+        }
+
+        /* Нижняя панель */
+        .bottom-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            border-top: 2px solid rgba(0, 0, 0, 0.15);
+            background-color: rgba(252, 228, 236, 0.95);
+            padding: 30px 20px 50px 20px;
+            display: none; 
+            z-index: 20; /* Поверх всего */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Текст в панели */
+        .panel-text {
+            color: #000000;
+            font-size: 28px;
+            text-align: center;
+            max-width: 85%;
+            line-height: 1.3;
+            margin-bottom: 20px;
+            min-height: 80px;
+        }
+
+        /* Стрелочки и индикатор */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .arrow {
+            font-size: 35px;
+            color: #000000;
+            cursor: pointer;
+            user-select: none;
+            padding: 0 15px;
+            transition: opacity 0.2s;
+        }
+
+        .arrow.disabled {
+            opacity: 0.2;
+            cursor: default;
+        }
+
+        .timer-text {
+            font-size: 20px;
+            color: rgba(0, 0, 0, 0.6);
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ДВЕ ФОНОВЫЕ ГИФКИ (появляются через секунду после клика на письмо) -->
+    <div class="background-gifs" id="bgGifs">
+        <img src="bg-left.gif" alt="Левый фон" class="bg-gif left">
+        <img src="bg-right.gif" alt="Правый фон" class="bg-gif right">
+    </div>
+
+    <!-- Центр экрана -->
+    <div class="content-wrapper">
+        <div class="instruction-text" id="instruction">нажми на письмо</div>
+        <div class="flower-text" id="flowerText">не грустииии</div>
+        
+        <img src="letter.gif" alt="Письмо" class="main-gif" id="mainImage">
+    </div>
+
+    <!-- Нижняя панель со стрелочками -->
+    <div class="bottom-panel" id="bottomPanel">
+        <div class="panel-text" id="panelMessage"></div>
+        
+        <div class="controls">
+            <div class="arrow" id="btnPrev">&#x21B2;</div>
+            <div style="font-size: 22px; color: rgba(0,0,0,0.7);" id="pageIndicator">1 / 2</div>
+            <div class="arrow" id="btnNext">&#x21B3;</div>
+        </div>
+
+        <div class="timer-text">New note in 23:59:58</div>
+    </div>
+
+    <script>
+        const messages = [
+            "знаю, тебе сейчас плохо, ты попровляйся скорее, я бы всем сердцем хотел забрать всю твою боль и пережил её за тебя. Я очень люблю тебя",
+            "И зная, я всегда рядом! давай, как ты поправишься, мы поболтаем обо всём на свете? а сейчас много отдыхай и поправляйся, Мурлыка)"
+        ];
+        
+        let currentPage = 0;
+
+        const mainImage = document.getElementById('mainImage');
+        const instruction = document.getElementById('instruction');
+        const flowerText = document.getElementById('flowerText');
+        const bottomPanel = document.getElementById('bottomPanel');
+        const panelMessage = document.getElementById('panelMessage');
+        const bgGifs = document.getElementById('bgGifs');
+        
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+        const pageIndicator = document.getElementById('pageIndicator');
+
+        function updatePanel() {
+            panelMessage.innerText = messages[currentPage];
+            pageIndicator.innerText = `${currentPage + 1} / ${messages.length}`;
+
+            if (currentPage === 0) {
+                btnPrev.classList.add('disabled');
+            } else {
+                btnPrev.classList.remove('disabled');
+            }
+
+            if (currentPage === messages.length - 1) {
+                btnNext.classList.add('disabled');
+            } else {
+                btnNext.classList.remove('disabled');
+            }
+        }
+
+        // Логика клика по письму
+        mainImage.addEventListener('click', function() {
+            if (mainImage.src.includes('letter.gif')) {
+                
+                mainImage.src = 'flower.gif';
+                instruction.style.display = 'none';
+                flowerText.style.display = 'block';
+                bottomPanel.style.display = 'flex';
+                updatePanel();
+
+                // Через 1 секунду плавно (или сразу) показываем две фоновые гифки сзади
+                setTimeout(() => {
+                    bgGifs.style.display = 'block';
+                }, 1000);
+            }
+        });
+
+        btnNext.addEventListener('click', function() {
+            if (currentPage < messages.length - 1) {
+                currentPage++;
+                updatePanel();
+            }
+        });
+
+        btnPrev.addEventListener('click', function() {
+            if (currentPage > 0) {
+                currentPage--;
+                updatePanel();
+            }
+        });
+    </script>
+</body>
+</html>
